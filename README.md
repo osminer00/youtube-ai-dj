@@ -1,8 +1,8 @@
-﻿∩╗┐# YouTube AI DJ
+﻿∩╗┐Γê⌐ΓòùΓöÉ# YouTube AI DJ
 
-Version: `v0.2.2`
+Version: `v0.2.3`
 
-Latest release note: `v0.2.2 - testing update version bat`
+Latest release note: `v0.2.3 - Testing update bat`
 
 This is the YouTube-first edition of AI DJ. It is the lane for:
 
@@ -27,7 +27,7 @@ Then open `http://127.0.0.1:8891/index.html`.
 
 ## Backups
 
-- Timestamped local backup saved at `backups/20260327-114955/`
+- Timestamped local backup saved at `backups/20260327-115253/`
 
 ## Changelog
 
@@ -39,5 +39,6 @@ Then open `http://127.0.0.1:8891/index.html`.
 2. Improve result ranking toward official uploads and stronger match quality.
 3. Add local taste signals so recommendations improve over time.
 4. Keep the scope centered on personal use and official embedded playback.
+
 
 

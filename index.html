@@ -1,9 +1,9 @@
-﻿∩╗┐<!DOCTYPE html>
+﻿∩╗┐Γê⌐ΓòùΓöÉ<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube AI DJ v0.2.2</title>
+<title>YouTube AI DJ v0.2.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -147,7 +147,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
 <div id="setup-screen">
   <div class="setup-card">
     <h1>YouTube AI DJ Setup</h1>
-    <p>Version v0.2.2. Same shell, new source. This edition keeps the refined AI DJ UI and uses the official YouTube player for search-driven music video playback.</p>
+    <p>Version v0.2.3. Same shell, new source. This edition keeps the refined AI DJ UI and uses the official YouTube player for search-driven music video playback.</p>
     <div class="setup-steps">
       <ol>
         <li>Add your <strong>YouTube Data API key</strong> for search results</li>
@@ -170,7 +170,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
 <div id="app">
   <div class="header">
     <div class="header-left">
-      <div class="logo"><span>AI</span> DJ <span style="color:var(--text3);font-weight:500;">v0.2.2</span></div>
+      <div class="logo"><span>AI</span> DJ <span style="color:var(--text3);font-weight:500;">v0.2.3</span></div>
       <div class="status-dot" id="status-dot"></div>
       <div class="status-text" id="status-text">YouTube edition ready</div>
     </div>
@@ -391,7 +391,7 @@ function setCurrentVideo(video,sourceType='queue',index=-1){
   els.videoPlaceholder.style.display='none';
   els.songTitle.textContent=video.title||'Untitled video';
   const secondary=video.channelTitle||'YouTube';
-  const extra=video.description?` <span>Γö¼Γòû</span> ${esc(video.description).replace(/&quot;/g,'"')}`:'';
+  const extra=video.description?` <span>╬ô├╢┬╝╬ô├▓├╗</span> ${esc(video.description).replace(/&quot;/g,'"')}`:'';
   els.songMeta.innerHTML=`${esc(secondary)}${extra}`;
   els.statusText.textContent=video.sourceLabel||'Video loaded';
   document.getElementById('time-dur').textContent='live';
@@ -626,5 +626,6 @@ if(localStorage.getItem(storage.apiKey)||localStorage.getItem(storage.model)||lo
 </script>
 </body>
 </html>
+
 
 

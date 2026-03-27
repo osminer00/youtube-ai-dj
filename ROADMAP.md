@@ -1,6 +1,6 @@
-﻿∩╗┐# YouTube AI DJ Roadmap
+﻿∩╗┐Γê⌐ΓòùΓöÉ# YouTube AI DJ Roadmap
 
-Current version: `v0.2.2`
+Current version: `v0.2.3`
 
 ## Phase 1
 
@@ -26,5 +26,6 @@ Current version: `v0.2.2`
 
 - Archived private project: separate and out of scope for this repo
 - YouTube edition: public/shareable video-first AI DJ
+
 
 
