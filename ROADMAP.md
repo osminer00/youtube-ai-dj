@@ -1,4 +1,6 @@
-# YouTube AI DJ Roadmap
+﻿∩╗┐# YouTube AI DJ Roadmap
+
+Current version: `v0.2.2`
 
 ## Phase 1
 
@@ -22,5 +24,7 @@
 
 ## Product boundary
 
-- Spotify edition: Spotify playback and personal listening
+- Archived private project: separate and out of scope for this repo
 - YouTube edition: public/shareable video-first AI DJ
+
+

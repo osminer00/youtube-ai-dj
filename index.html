@@ -1,476 +1,630 @@
-<!doctype html>
+﻿∩╗┐<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>YouTube AI DJ</title>
-  <style>
-    :root{
-      --bg:#0d1117;
-      --panel:#141b24;
-      --panel-2:#192230;
-      --line:rgba(255,255,255,.09);
-      --text:#e8eef7;
-      --muted:#95a2b3;
-      --accent:#ff4e45;
-      --accent-2:#ffd166;
-      --good:#40c57a;
-      --warn:#f2b63d;
-      --chip:#1f2a39;
-      --shadow:0 24px 60px rgba(0,0,0,.35);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:"Segoe UI",Arial,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(255,78,69,.18), transparent 26%),
-        radial-gradient(circle at top right, rgba(255,209,102,.1), transparent 22%),
-        linear-gradient(180deg,#0b0f15 0%, var(--bg) 100%);
-      min-height:100vh;
-    }
-    button,input,textarea{font:inherit}
-    .shell{max-width:1440px;margin:0 auto;padding:22px}
-    .topbar{
-      display:flex;justify-content:space-between;align-items:center;gap:16px;
-      padding:18px 20px;margin-bottom:18px;border:1px solid var(--line);
-      border-radius:22px;background:rgba(20,27,36,.88);backdrop-filter:blur(16px);
-      box-shadow:var(--shadow);
-    }
-    .brand{display:flex;flex-direction:column;gap:6px}
-    .eyebrow{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}
-    h1{margin:0;font-size:28px;letter-spacing:-.03em}
-    .sub{font-size:13px;color:var(--muted);max-width:720px;line-height:1.6}
-    .pill-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
-    .pill{
-      padding:9px 12px;border-radius:999px;background:var(--chip);
-      border:1px solid var(--line);font-size:12px;color:var(--text)
-    }
-    .layout{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
-    .panel{
-      border:1px solid var(--line);border-radius:24px;background:var(--panel);
-      box-shadow:var(--shadow);
-    }
-    .left{padding:18px}
-    .right{padding:18px;display:flex;flex-direction:column;gap:16px}
-    .media{
-      border:1px solid var(--line);border-radius:22px;background:#0a0f15;
-      overflow:hidden;position:relative;aspect-ratio:16/9;
-    }
-    .media iframe{width:100%;height:100%;border:0;background:#000}
-    .media-empty{
-      position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:12px;padding:24px;text-align:center;color:var(--muted);
-      background:
-        linear-gradient(180deg, rgba(255,78,69,.12), transparent 40%),
-        linear-gradient(180deg, #0a0f15, #0d1117);
-    }
-    .media-empty strong{color:var(--text);font-size:18px}
-    .now{
-      margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--panel-2)
-    }
-    .now h2{margin:0 0 6px;font-size:22px}
-    .meta{font-size:13px;color:var(--muted);line-height:1.6}
-    .status-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-    .status{
-      padding:7px 10px;border-radius:999px;font-size:11px;letter-spacing:.5px;
-      text-transform:uppercase;border:1px solid var(--line);background:rgba(255,255,255,.04)
-    }
-    .status.good{color:var(--good)}
-    .status.warn{color:var(--warn)}
-    .card{
-      padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--panel-2)
-    }
-    .card h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
-    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-    .field:last-child{margin-bottom:0}
-    label{font-size:12px;color:var(--muted)}
-    input[type="text"], textarea{
-      width:100%;border:1px solid var(--line);border-radius:14px;background:#0f151d;
-      color:var(--text);padding:12px 14px;outline:none;
-    }
-    textarea{min-height:86px;resize:vertical}
-    .btn-row{display:flex;flex-wrap:wrap;gap:10px}
-    .btn{
-      border:none;border-radius:999px;padding:11px 16px;cursor:pointer;
-      background:#243244;color:var(--text);transition:transform .12s, opacity .12s
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background:var(--accent);color:#fff;font-weight:700}
-    .btn.alt{background:#fff1;border:1px solid var(--line)}
-    .list{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow:auto}
-    .item{
-      padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:#101722
-    }
-    .item strong{display:block;margin-bottom:4px}
-    .item p{margin:0;font-size:12px;color:var(--muted);line-height:1.5}
-    .item-actions{display:flex;gap:8px;margin-top:10px}
-    .mini{padding:8px 11px;border-radius:999px;border:1px solid var(--line);background:#fff1;color:var(--text);cursor:pointer}
-    .empty{font-size:13px;color:var(--muted);line-height:1.7}
-    .footer-note{font-size:12px;color:var(--muted);line-height:1.7}
-    .toast{
-      position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(18px);
-      opacity:0;pointer-events:none;transition:all .2s ease;
-      background:#121923;border:1px solid var(--line);border-radius:999px;padding:10px 16px;box-shadow:var(--shadow)
-    }
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    @media (max-width: 980px){
-      .layout{grid-template-columns:1fr}
-      .pill-row{justify-content:flex-start}
-      .topbar{flex-direction:column;align-items:flex-start}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube AI DJ v0.2.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#e8e8e8;--text2:#888;--text3:#444;
+  --red:#ff4e45;--red2:#e6453d;
+  --green:#1db954;--green2:#1aa34a;
+  --r1:#4ade80;--r2:#a3e635;--r3:#facc15;--r4:#fb923c;--r5:#f87171;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+button,input,textarea{font:inherit}
+
+/* SETUP SCREEN */
+#setup-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;}
+.setup-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:40px;max-width:560px;width:100%;}
+.setup-card h1{font-size:20px;font-weight:500;margin-bottom:6px;letter-spacing:-.3px;}
+.setup-card p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px;}
+.setup-steps{background:var(--bg3);border-radius:10px;padding:16px 20px;margin-bottom:24px;}
+.setup-steps ol{padding-left:18px;}
+.setup-steps li{font-size:12.5px;color:var(--text2);line-height:2;letter-spacing:.1px;}
+.setup-steps li strong{color:var(--text);font-weight:500;}
+.setup-steps code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg4);padding:2px 6px;border-radius:4px;color:#7dd3fc;}
+label{display:block;font-size:11px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;font-weight:500;}
+input[type=text],textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:11px 14px;outline:none;margin-bottom:16px;transition:border-color .15s;}
+input[type=text]:focus,textarea:focus{border-color:rgba(255,255,255,0.25);}
+textarea{min-height:90px;resize:vertical;line-height:1.6;}
+.btn-primary{width:100%;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:13px;cursor:pointer;transition:background .15s;}
+.btn-primary:hover{background:var(--red2);}
+.setup-note{font-size:11.5px;color:var(--text3);margin-top:14px;line-height:1.6;text-align:center;}
+.setup-note a{color:var(--text2);text-decoration:underline;}
+
+/* MAIN APP */
+#app{display:none;flex:1;flex-direction:column;}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo{font-size:14px;font-weight:500;letter-spacing:.5px;color:var(--text2);}
+.logo span{color:var(--text);font-weight:600;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--red);}
+.status-text{font-size:11px;color:var(--text3);}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn-sm{background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;padding:6px 14px;cursor:pointer;transition:all .15s;}
+.btn-sm:hover{background:var(--bg3);color:var(--text);}
+
+/* PLAYER LAYOUT */
+.player-wrap{display:grid;grid-template-columns:1fr 380px;flex:1;min-height:0;}
+
+/* NOW PLAYING */
+.now-playing{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 40px;gap:26px;}
+.album-art-wrap{position:relative;}
+.video-frame-wrap{width:320px;height:320px;border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--border);display:block;position:relative;}
+.video-frame-wrap iframe{width:100%;height:100%;border:0;background:#000;}
+.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;background:linear-gradient(180deg,rgba(255,78,69,.12),transparent 40%),#111;}
+.video-placeholder svg{opacity:.2}
+.video-placeholder span{font-size:12px;color:var(--text2);line-height:1.7;max-width:220px}
+.song-info{text-align:center;width:100%;max-width:360px;}
+.song-title{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px;line-height:1.3;}
+.song-meta{font-size:13px;color:var(--text2);line-height:1.8;}
+.song-meta span{color:var(--text3);}
+
+/* PROGRESS */
+.progress-wrap{width:100%;max-width:360px;}
+.progress-bar-bg{height:2px;background:var(--bg4);border-radius:2px;position:relative;}
+.progress-bar-fill{height:100%;border-radius:2px;background:var(--text);width:0%;}
+.progress-times{display:flex;justify-content:space-between;margin-top:6px;}
+.progress-times span{font-size:10.5px;color:var(--text3);font-family:'IBM Plex Mono',monospace;}
+
+/* CONTROLS */
+.controls{display:flex;align-items:center;justify-content:center;gap:20px;}
+.ctrl-btn{background:none;border:none;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:color .15s;padding:6px;}
+.ctrl-btn:hover{color:var(--text);}
+.ctrl-btn.play{width:48px;height:48px;background:var(--text);border-radius:50%;color:var(--bg);transition:transform .12s,background .15s;}
+.ctrl-btn.play:hover{transform:scale(1.04);background:#fff;}
+
+/* RATING PANEL */
+.rating-panel{border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0;}
+.panel-section{padding:20px 24px;border-bottom:1px solid var(--border);}
+.panel-label{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-weight:500;margin-bottom:14px;}
+.rate-question{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+.rating-btns{display:flex;flex-direction:column;gap:6px;}
+.rate-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .15s;text-align:left;width:100%;}
+.rate-btn:hover{border-color:var(--border2);background:var(--bg3);}
+.rate-btn.selected{border-color:currentColor;}
+.rate-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.rate-label{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);font-weight:400;}
+.rate-btn[data-r="1"] .rate-dot{background:var(--r1);}
+.rate-btn[data-r="2"] .rate-dot{background:var(--r2);}
+.rate-btn[data-r="3"] .rate-dot{background:var(--r3);}
+.rate-btn[data-r="4"] .rate-dot{background:var(--r4);}
+.rate-btn[data-r="5"] .rate-dot{background:var(--r5);}
+.rate-btn[data-r="1"].selected{color:var(--r1);background:rgba(74,222,128,.06);}
+.rate-btn[data-r="2"].selected{color:var(--r2);background:rgba(163,230,53,.06);}
+.rate-btn[data-r="3"].selected{color:var(--r3);background:rgba(250,204,21,.06);}
+.rate-btn[data-r="4"].selected{color:var(--r4);background:rgba(251,146,60,.06);}
+.rate-btn[data-r="5"].selected{color:var(--r5);background:rgba(248,113,113,.06);}
+
+/* AI STATUS */
+.ai-status{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.ai-dot.thinking{animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.ai-text{font-size:12px;color:var(--text2);line-height:1.5;}
+
+/* QUEUE + RESULTS */
+.queue-wrap{flex:1;overflow-y:auto;padding:0;min-height:0;}
+.queue-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px 10px;position:sticky;top:0;background:var(--bg2);z-index:1;}
+.queue-empty{padding:24px;font-size:12.5px;color:var(--text3);text-align:center;line-height:1.8;}
+.queue-item{display:flex;align-items:flex-start;gap:10px;padding:10px 16px 10px 24px;border-bottom:1px solid var(--border);transition:background .12s;}
+.queue-item:hover{background:var(--bg3);}
+.queue-item.now{background:rgba(255,78,69,0.07);}
+.qi-art{width:38px;height:38px;border-radius:5px;display:grid;place-items:center;background:var(--bg3);flex-shrink:0;color:var(--text3);font-size:10px;border:1px solid var(--border);}
+.qi-info{flex:1;min-width:0;}
+.qi-title{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.qi-artist{font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.qi-meta{font-size:10px;color:var(--text3);margin-top:4px;}
+.qi-actions{display:flex;gap:6px;flex-shrink:0;}
+.mini-btn{background:transparent;border:1px solid var(--border2);border-radius:999px;color:var(--text2);padding:5px 10px;font-size:11px;cursor:pointer;}
+.mini-btn:hover{background:var(--bg3);color:var(--text);}
+
+/* EXTRA */
+.search-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.helper-note{font-size:11px;color:var(--text3);line-height:1.7;}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.chip{font-size:10px;padding:5px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);letter-spacing:.7px;text-transform:uppercase;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-size:13px;color:var(--text);opacity:0;transition:all .25s;pointer-events:none;z-index:100;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px;}
+@media(max-width:700px){
+  .player-wrap{grid-template-columns:1fr;}
+  .rating-panel{border-left:none;border-top:1px solid var(--border);}
+  .now-playing{padding:32px 20px;}
+  .video-frame-wrap{width:min(320px,80vw);height:min(320px,80vw);}
+}
+</style>
 </head>
 <body>
-  <div class="shell">
-    <section class="topbar">
-      <div class="brand">
-        <div class="eyebrow">YouTube-first edition</div>
-        <h1>AI DJ Video Player</h1>
-        <div class="sub">This is the new shareable lane: video-first playback, future AI-generated fallback visuals, and a cleaner path to hosted/mobile use.</div>
-      </div>
-      <div class="pill-row">
-        <div class="pill">Spotify-free video lane</div>
-        <div class="pill">Queue + vibe framework transferred</div>
-        <div class="pill">AI video fallback planned</div>
-      </div>
-    </section>
 
-    <section class="layout">
-      <div class="panel left">
-        <div class="media" id="media-shell">
-          <iframe id="video-frame" title="YouTube AI DJ Player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-          <div class="media-empty" id="media-empty">
-            <strong>No video loaded yet</strong>
-            <div>Search for a track, paste a YouTube link, or queue a video from the results list.</div>
-          </div>
-        </div>
+<div id="setup-screen">
+  <div class="setup-card">
+    <h1>YouTube AI DJ Setup</h1>
+    <p>Version v0.2.2. Same shell, new source. This edition keeps the refined AI DJ UI and uses the official YouTube player for search-driven music video playback.</p>
+    <div class="setup-steps">
+      <ol>
+        <li>Add your <strong>YouTube Data API key</strong> for search results</li>
+        <li>Pick your <strong>Ollama model</strong> for future recommendation tuning</li>
+        <li>Optionally save a <strong>taste note</strong> for future ranking ideas</li>
+        <li>Open the app and use <strong>Search YouTube</strong> or paste a direct video URL</li>
+      </ol>
+    </div>
+    <label for="youtube-api-key-input">YouTube Data API Key</label>
+    <input type="text" id="youtube-api-key-input" placeholder="Paste your API key here" />
+    <label for="api-key-input">Ollama Model</label>
+    <input type="text" id="api-key-input" placeholder="llama3.2" value="llama3.2" />
+    <label for="vibe-prompt-input">Future recommendation note</label>
+    <textarea id="vibe-prompt-input" placeholder="Prefer official uploads, live sessions, soft rock at night, avoid lyric videos unless no better match exists."></textarea>
+    <button class="btn-primary" onclick="enterApp()">Open YouTube AI DJ</button>
+    <p class="setup-note">For now this stays focused on personal search, ranking, and queueing around official YouTube playback.</p>
+  </div>
+</div>
 
-        <div class="now">
-          <h2 id="track-title">No track selected</h2>
-          <div class="meta" id="track-meta">Queue a video to start building the YouTube edition.</div>
-          <div class="status-row">
-            <div class="status good" id="video-status">Video-ready shell</div>
-            <div class="status" id="queue-status">Queue empty</div>
-            <div class="status warn" id="ai-status">AI video fallback not built yet</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel right">
-        <div class="card">
-          <h3>Session Setup</h3>
-          <div class="field">
-            <label for="youtube-api-key">YouTube Data API key</label>
-            <input type="text" id="youtube-api-key" placeholder="Optional today, needed for search results">
-          </div>
-          <div class="field">
-            <label for="ollama-model">Ollama model</label>
-            <input type="text" id="ollama-model" placeholder="llama3.2" value="llama3.2">
-          </div>
-          <div class="btn-row">
-            <button class="btn primary" id="save-setup">Save Setup</button>
-            <button class="btn alt" id="clear-setup">Clear Saved Keys</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Video Search</h3>
-          <div class="field">
-            <label for="search-query">Track, artist, or vibe</label>
-            <input type="text" id="search-query" placeholder="Daft Punk Something About Us official video">
-          </div>
-          <div class="field">
-            <label for="manual-url">YouTube URL or video ID</label>
-            <input type="text" id="manual-url" placeholder="https://www.youtube.com/watch?v=...">
-          </div>
-          <div class="btn-row">
-            <button class="btn primary" id="search-btn">Search YouTube</button>
-            <button class="btn alt" id="load-manual-btn">Load Manual Video</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>AI Vibe Prompt</h3>
-          <div class="field">
-            <label for="vibe-prompt">What should the video lane feel like?</label>
-            <textarea id="vibe-prompt" placeholder="Late-night neon city, emotional alt-pop, official videos first, clean fallback visuals if none exist."></textarea>
-          </div>
-          <div class="btn-row">
-            <button class="btn primary" id="save-vibe-btn">Save Vibe Context</button>
-          </div>
-          <p class="footer-note">Saved for tomorrow’s build. The future AI-generated video flow should use this as style context, not as a direct render command without moderation.</p>
-        </div>
-
-        <div class="card">
-          <h3>Search Results</h3>
-          <div class="list" id="results-list">
-            <div class="empty">Add a YouTube API key, then search to populate embeddable video candidates here.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Queue</h3>
-          <div class="list" id="queue-list">
-            <div class="empty">Your queued videos will appear here.</div>
-          </div>
-        </div>
-      </div>
-    </section>
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo"><span>AI</span> DJ <span style="color:var(--text3);font-weight:500;">v0.2.2</span></div>
+      <div class="status-dot" id="status-dot"></div>
+      <div class="status-text" id="status-text">YouTube edition ready</div>
+    </div>
+    <div class="header-right">
+      <span class="status-text" id="rating-count" title="Queue and saved video count">0 videos saved</span>
+      <button class="btn-sm" onclick="saveSetupFromApp()" title="Save setup">Save Setup</button>
+      <button class="btn-sm" onclick="searchYouTube()" title="Search YouTube">Search</button>
+      <button class="btn-sm" onclick="showFutureBackendNote()" title="Recommendation tuning and ranking ideas">Ranking Notes</button>
+      <button class="btn-sm" onclick="resetApp()">Reset</button>
+    </div>
   </div>
 
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const storage = {
-      apiKey: 'ytdj_api_key',
-      model: 'ytdj_ollama_model',
-      vibe: 'ytdj_vibe_prompt',
-      queue: 'ytdj_queue',
-      history: 'ytdj_history'
-    };
-
-    const state = {
-      queue: [],
-      results: [],
-      current: null
-    };
-
-    const els = {
-      apiKey: document.getElementById('youtube-api-key'),
-      model: document.getElementById('ollama-model'),
-      vibe: document.getElementById('vibe-prompt'),
-      query: document.getElementById('search-query'),
-      manualUrl: document.getElementById('manual-url'),
-      results: document.getElementById('results-list'),
-      queue: document.getElementById('queue-list'),
-      frame: document.getElementById('video-frame'),
-      mediaEmpty: document.getElementById('media-empty'),
-      trackTitle: document.getElementById('track-title'),
-      trackMeta: document.getElementById('track-meta'),
-      videoStatus: document.getElementById('video-status'),
-      queueStatus: document.getElementById('queue-status'),
-      toast: document.getElementById('toast')
-    };
-
-    let toastTimer;
-
-    function showToast(message){
-      els.toast.textContent = message;
-      els.toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2600);
-    }
-
-    function esc(value){
-      return String(value ?? '').replace(/[&<>"']/g, char => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-      }[char]));
-    }
-
-    function getVideoId(input){
-      const value = String(input || '').trim();
-      if(!value) return '';
-      const match = value.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
-      if(match) return match[1];
-      if(/^[A-Za-z0-9_-]{11}$/.test(value)) return value;
-      return '';
-    }
-
-    function saveSetup(){
-      localStorage.setItem(storage.apiKey, els.apiKey.value.trim());
-      localStorage.setItem(storage.model, els.model.value.trim());
-      localStorage.setItem(storage.vibe, els.vibe.value.trim());
-      showToast('YouTube edition setup saved.');
-    }
-
-    function clearSetup(){
-      localStorage.removeItem(storage.apiKey);
-      localStorage.removeItem(storage.model);
-      els.apiKey.value = '';
-      els.model.value = 'llama3.2';
-      showToast('Saved setup cleared.');
-    }
-
-    function saveQueue(){
-      localStorage.setItem(storage.queue, JSON.stringify(state.queue));
-    }
-
-    function loadSavedState(){
-      els.apiKey.value = localStorage.getItem(storage.apiKey) || '';
-      els.model.value = localStorage.getItem(storage.model) || 'llama3.2';
-      els.vibe.value = localStorage.getItem(storage.vibe) || '';
-      try{
-        const savedQueue = JSON.parse(localStorage.getItem(storage.queue) || '[]');
-        state.queue = Array.isArray(savedQueue) ? savedQueue : [];
-      }catch(err){
-        state.queue = [];
-      }
-      renderQueue();
-    }
-
-    function setCurrent(video){
-      state.current = video;
-      const embed = `https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&mute=0&playsinline=1&rel=0&modestbranding=1`;
-      els.frame.src = embed;
-      els.mediaEmpty.style.display = 'none';
-      els.trackTitle.textContent = video.title;
-      els.trackMeta.textContent = `${video.channelTitle || 'YouTube'}${video.description ? ' • ' + video.description : ''}`;
-      els.videoStatus.textContent = video.sourceLabel || 'YouTube video loaded';
-      showToast(`Loaded ${video.title}`);
-    }
-
-    function queueVideo(video){
-      const exists = state.queue.some(item => item.videoId === video.videoId);
-      if(exists){
-        showToast('That video is already in the queue.');
-        return;
-      }
-      state.queue.unshift(video);
-      saveQueue();
-      renderQueue();
-      if(!state.current){
-        setCurrent(video);
-      }
-      showToast('Added to queue.');
-    }
-
-    function renderResults(){
-      if(!state.results.length){
-        els.results.innerHTML = '<div class="empty">No search results yet.</div>';
-        return;
-      }
-      els.results.innerHTML = state.results.map((item, index) => `
-        <div class="item">
-          <strong>${esc(item.title)}</strong>
-          <p>${esc(item.channelTitle || 'YouTube')} ${item.description ? '• ' + esc(item.description) : ''}</p>
-          <div class="item-actions">
-            <button class="mini" data-result-play="${index}">Play</button>
-            <button class="mini" data-result-queue="${index}">Queue</button>
+  <div class="player-wrap">
+    <div class="now-playing">
+      <div class="album-art-wrap">
+        <div class="video-frame-wrap" id="video-wrap">
+          <iframe id="video-frame" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <div class="video-placeholder" id="video-placeholder">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            <span>Load a YouTube video and it will appear here in the main media stage.</span>
           </div>
         </div>
-      `).join('');
-    }
+      </div>
 
-    function renderQueue(){
-      els.queueStatus.textContent = state.queue.length ? `${state.queue.length} queued` : 'Queue empty';
-      if(!state.queue.length){
-        els.queue.innerHTML = '<div class="empty">Your queued videos will appear here.</div>';
-        return;
-      }
-      els.queue.innerHTML = state.queue.map((item, index) => `
-        <div class="item">
-          <strong>${esc(item.title)}</strong>
-          <p>${esc(item.channelTitle || 'YouTube')}</p>
-          <div class="item-actions">
-            <button class="mini" data-queue-play="${index}">Play</button>
-            <button class="mini" data-queue-remove="${index}">Remove</button>
+      <div class="song-info">
+        <div class="song-title" id="song-title">No video selected</div>
+        <div class="song-meta" id="song-meta">Search YouTube or paste a direct link to start building the new player flow</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-times">
+          <span id="time-cur">0:00</span>
+          <span id="time-dur">video</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="ctrl-btn" onclick="playPreviousVideo()" title="Previous in queue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+        </button>
+        <button class="ctrl-btn play" onclick="replayCurrentVideo()" title="Replay current video">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="ctrl-btn" onclick="playNextQueuedVideo()" title="Next queued video">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="rating-panel">
+      <div class="panel-section">
+        <div class="panel-label">Video Search</div>
+        <div class="rate-question">Use the side panel to search YouTube, paste a direct link, and keep a queue of official playback candidates.</div>
+        <div class="search-grid">
+          <div>
+            <label for="search-query-input">Track, artist, or vibe</label>
+            <input type="text" id="search-query-input" placeholder="Daft Punk Something About Us official music video" onkeydown="if(event.key==='Enter')searchYouTube()">
+          </div>
+          <div>
+            <label for="manual-url-input">Manual YouTube URL or video ID</label>
+            <input type="text" id="manual-url-input" placeholder="https://www.youtube.com/watch?v=..." onkeydown="if(event.key==='Enter')loadManualVideo()">
+          </div>
+          <div class="chip-row">
+            <div class="chip">Legacy shell reused</div>
+            <div class="chip">YouTube player swapped in</div>
+            <div class="chip">Recommendation logic next</div>
           </div>
         </div>
-      `).join('');
-    }
+      </div>
 
-    async function searchYouTube(){
-      const apiKey = els.apiKey.value.trim();
-      const query = els.query.value.trim();
-      if(!query){
-        showToast('Enter something to search for.');
-        return;
-      }
-      if(!apiKey){
-        showToast('Add a YouTube API key first for live search.');
-        return;
-      }
+      <div class="panel-section">
+        <div class="ai-status" id="ai-status">
+          <div class="ai-dot" id="ai-dot"></div>
+          <div class="ai-text" id="ai-text">Search results and queue ordering can get smarter with recommendation tuning later.</div>
+        </div>
+        <div class="helper-note" style="margin-top:12px;">The current YouTube edition is UI-first on purpose: same visual rhythm as the earlier AI DJ build, but focused on official YouTube search and embedded playback.</div>
+      </div>
 
-      els.results.innerHTML = '<div class="empty">Searching YouTube…</div>';
+      <div class="queue-wrap">
+        <div class="queue-header">
+          <div class="panel-label" style="margin:0;">Search Results</div>
+          <button class="mini-btn" onclick="searchYouTube()">Refresh</button>
+        </div>
+        <div id="results-list">
+          <div class="queue-empty">Add a YouTube API key and search to populate video results here.</div>
+        </div>
+        <div class="queue-header">
+          <div class="panel-label" style="margin:0;">Queue</div>
+          <button class="mini-btn" onclick="clearQueue()">Clear Queue</button>
+        </div>
+        <div id="queue-list">
+          <div class="queue-empty">Queued videos will appear here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-      try{
-        const url = 'https://www.googleapis.com/youtube/v3/search?' + new URLSearchParams({
-          part: 'snippet',
-          maxResults: '8',
-          q: query,
-          type: 'video',
-          videoEmbeddable: 'true',
-          key: apiKey
-        });
-        const res = await fetch(url);
-        const data = await res.json();
-        if(!res.ok){
-          throw new Error(data?.error?.message || `Search failed (${res.status})`);
-        }
-        state.results = (Array.isArray(data.items) ? data.items : []).map(item => ({
-          videoId: item.id?.videoId,
-          title: item.snippet?.title || 'Untitled video',
-          channelTitle: item.snippet?.channelTitle || '',
-          description: item.snippet?.description || '',
-          sourceLabel: 'YouTube search result'
-        })).filter(item => item.videoId);
-        renderResults();
-        showToast(`Found ${state.results.length} videos.`);
-      }catch(err){
-        els.results.innerHTML = `<div class="empty">${esc(err.message || err)}</div>`;
-        showToast('YouTube search failed.');
-      }
-    }
+<div class="toast" id="toast"></div>
 
-    function loadManualVideo(){
-      const videoId = getVideoId(els.manualUrl.value);
-      if(!videoId){
-        showToast('Paste a valid YouTube URL or 11-character video ID.');
-        return;
-      }
-      const manualVideo = {
-        videoId,
-        title: 'Manual YouTube video',
-        channelTitle: 'Manual load',
-        description: 'Loaded from pasted URL or video ID',
-        sourceLabel: 'Manual YouTube load'
-      };
-      queueVideo(manualVideo);
-      setCurrent(manualVideo);
-    }
+<script>
+const storage={
+  apiKey:'ytdj_api_key',
+  model:'ytdj_ollama_model',
+  vibe:'ytdj_vibe_prompt',
+  queue:'ytdj_queue'
+};
 
-    document.getElementById('save-setup').addEventListener('click', saveSetup);
-    document.getElementById('clear-setup').addEventListener('click', clearSetup);
-    document.getElementById('search-btn').addEventListener('click', searchYouTube);
-    document.getElementById('load-manual-btn').addEventListener('click', loadManualVideo);
-    document.getElementById('save-vibe-btn').addEventListener('click', () => {
-      localStorage.setItem(storage.vibe, els.vibe.value.trim());
-      showToast('Vibe context saved for the YouTube edition.');
+const state={
+  queue:[],
+  results:[],
+  current:null,
+  currentIndex:-1,
+  currentResultIndex:-1
+};
+
+const els={
+  setupScreen:document.getElementById('setup-screen'),
+  app:document.getElementById('app'),
+  apiKeyInput:document.getElementById('youtube-api-key-input'),
+  modelInput:document.getElementById('api-key-input'),
+  vibeInput:document.getElementById('vibe-prompt-input'),
+  searchInput:document.getElementById('search-query-input'),
+  manualInput:document.getElementById('manual-url-input'),
+  videoFrame:document.getElementById('video-frame'),
+  videoPlaceholder:document.getElementById('video-placeholder'),
+  songTitle:document.getElementById('song-title'),
+  songMeta:document.getElementById('song-meta'),
+  resultsList:document.getElementById('results-list'),
+  queueList:document.getElementById('queue-list'),
+  ratingCount:document.getElementById('rating-count'),
+  aiText:document.getElementById('ai-text'),
+  aiDot:document.getElementById('ai-dot'),
+  statusText:document.getElementById('status-text'),
+  toast:document.getElementById('toast')
+};
+
+let toastTimer;
+
+function esc(value){
+  return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+}
+
+function showToast(msg){
+  els.toast.textContent=msg;
+  els.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>els.toast.classList.remove('show'),2800);
+}
+
+function setAiStatus(stateName,text){
+  els.aiDot.className='ai-dot'+(stateName==='thinking'?' thinking':'');
+  els.aiText.textContent=text;
+}
+
+function updateHeaderCount(){
+  els.ratingCount.textContent=`${state.queue.length} videos saved`;
+}
+
+function saveSetup(){
+  localStorage.setItem(storage.apiKey,els.apiKeyInput.value.trim());
+  localStorage.setItem(storage.model,els.modelInput.value.trim());
+  localStorage.setItem(storage.vibe,els.vibeInput.value.trim());
+}
+
+function saveSetupFromApp(){
+  saveSetup();
+  showToast('YouTube setup saved.');
+}
+
+function loadSetup(){
+  els.apiKeyInput.value=localStorage.getItem(storage.apiKey)||'';
+  els.modelInput.value=localStorage.getItem(storage.model)||'llama3.2';
+  els.vibeInput.value=localStorage.getItem(storage.vibe)||'';
+  els.searchInput.value=localStorage.getItem('ytdj_last_query')||'';
+}
+
+function saveQueue(){
+  localStorage.setItem(storage.queue,JSON.stringify(state.queue));
+  updateHeaderCount();
+}
+
+function loadQueue(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(storage.queue)||'[]');
+    state.queue=Array.isArray(saved)?saved:[];
+  }catch(e){
+    state.queue=[];
+  }
+  updateHeaderCount();
+}
+
+function enterApp(){
+  saveSetup();
+  els.setupScreen.style.display='none';
+  els.app.style.display='flex';
+  els.searchInput.focus();
+    showToast('YouTube AI DJ ready.');
+}
+
+function getVideoId(input){
+  const value=String(input||'').trim();
+  if(!value) return '';
+  const match=value.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  if(match) return match[1];
+  if(/^[A-Za-z0-9_-]{11}$/.test(value)) return value;
+  return '';
+}
+
+function setCurrentVideo(video,sourceType='queue',index=-1){
+  state.current=video;
+  if(sourceType==='queue') state.currentIndex=index;
+  if(sourceType==='results') state.currentResultIndex=index;
+  els.videoFrame.src=`https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&mute=0&playsinline=1&rel=0&modestbranding=1`;
+  els.videoPlaceholder.style.display='none';
+  els.songTitle.textContent=video.title||'Untitled video';
+  const secondary=video.channelTitle||'YouTube';
+  const extra=video.description?` <span>Γö¼Γòû</span> ${esc(video.description).replace(/&quot;/g,'"')}`:'';
+  els.songMeta.innerHTML=`${esc(secondary)}${extra}`;
+  els.statusText.textContent=video.sourceLabel||'Video loaded';
+  document.getElementById('time-dur').textContent='live';
+  document.getElementById('progress-fill').style.width='100%';
+  renderResults();
+  renderQueue();
+}
+
+function replayCurrentVideo(){
+  if(!state.current){
+    showToast('Load a video first.');
+    return;
+  }
+  setCurrentVideo(state.current,'queue',state.currentIndex);
+  showToast('Replaying current video.');
+}
+
+function playPreviousVideo(){
+  if(!state.queue.length){
+    showToast('Queue is empty.');
+    return;
+  }
+  let nextIndex=state.currentIndex<=0?state.queue.length-1:state.currentIndex-1;
+  setCurrentVideo(state.queue[nextIndex],'queue',nextIndex);
+}
+
+function playNextQueuedVideo(){
+  if(!state.queue.length){
+    showToast('Queue is empty.');
+    return;
+  }
+  let nextIndex=state.currentIndex>=state.queue.length-1||state.currentIndex<0?0:state.currentIndex+1;
+  setCurrentVideo(state.queue[nextIndex],'queue',nextIndex);
+}
+
+function queueVideo(video){
+  if(state.queue.some(item=>item.videoId===video.videoId)){
+    showToast('That video is already in the queue.');
+    return;
+  }
+  state.queue.push(video);
+  saveQueue();
+  renderQueue();
+  if(!state.current){
+    setCurrentVideo(video,'queue',state.queue.length-1);
+  }
+  showToast('Added to queue.');
+}
+
+function clearQueue(){
+  state.queue=[];
+  state.currentIndex=-1;
+  saveQueue();
+  renderQueue();
+  showToast('Queue cleared.');
+}
+
+function removeQueueItem(index){
+  state.queue.splice(index,1);
+  if(state.currentIndex===index) state.currentIndex=-1;
+  saveQueue();
+  renderQueue();
+  showToast('Removed from queue.');
+}
+
+function renderResults(){
+  if(!state.results.length){
+    els.resultsList.innerHTML='<div class="queue-empty">Add a YouTube API key and search to populate video results here.</div>';
+    return;
+  }
+  els.resultsList.innerHTML=state.results.map((item,index)=>{
+    const isNow=state.current && state.current.videoId===item.videoId;
+    return `<div class="queue-item${isNow?' now':''}">
+      <div class="qi-art">YT</div>
+      <div class="qi-info">
+        <div class="qi-title">${esc(item.title)}</div>
+        <div class="qi-artist">${esc(item.channelTitle||'YouTube')}</div>
+        <div class="qi-meta">${esc(item.sourceLabel||'Result')}</div>
+      </div>
+      <div class="qi-actions">
+        <button class="mini-btn" data-result-play="${index}">Play</button>
+        <button class="mini-btn" data-result-queue="${index}">Queue</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderQueue(){
+  updateHeaderCount();
+  if(!state.queue.length){
+    els.queueList.innerHTML='<div class="queue-empty">Queued videos will appear here.</div>';
+    return;
+  }
+  els.queueList.innerHTML=state.queue.map((item,index)=>{
+    const isNow=state.current && state.current.videoId===item.videoId;
+    return `<div class="queue-item${isNow?' now':''}">
+      <div class="qi-art">Q</div>
+      <div class="qi-info">
+        <div class="qi-title">${esc(item.title)}</div>
+        <div class="qi-artist">${esc(item.channelTitle||'YouTube')}</div>
+        <div class="qi-meta">${esc(item.sourceLabel||'Queued video')}</div>
+      </div>
+      <div class="qi-actions">
+        <button class="mini-btn" data-queue-play="${index}">Play</button>
+        <button class="mini-btn" data-queue-remove="${index}">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function searchYouTube(){
+  const apiKey=els.apiKeyInput.value.trim();
+  const query=els.searchInput.value.trim();
+  if(!query){
+    showToast('Enter something to search for.');
+    return;
+  }
+  localStorage.setItem('ytdj_last_query',query);
+  if(!apiKey){
+    showToast('Add a YouTube API key first for live search.');
+    return;
+  }
+  setAiStatus('thinking','Searching YouTube for embeddable music videos...');
+  els.resultsList.innerHTML='<div class="queue-empty">Searching YouTube...</div>';
+  try{
+    const url='https://www.googleapis.com/youtube/v3/search?'+new URLSearchParams({
+      part:'snippet',
+      maxResults:'8',
+      q:query,
+      type:'video',
+      videoEmbeddable:'true',
+      key:apiKey
     });
+    const res=await fetch(url);
+    const data=await res.json();
+    if(!res.ok) throw new Error(data?.error?.message||`Search failed (${res.status})`);
+    state.results=(Array.isArray(data.items)?data.items:[]).map(item=>({
+      videoId:item.id?.videoId,
+      title:item.snippet?.title||'Untitled video',
+      channelTitle:item.snippet?.channelTitle||'YouTube',
+      description:item.snippet?.description||'',
+      sourceLabel:'YouTube search result'
+    })).filter(item=>item.videoId);
+    renderResults();
+    setAiStatus('ready',state.results.length?`Found ${state.results.length} video candidates. Ranking can get smarter as your taste model evolves.`:'No embeddable results found for that search.');
+    showToast(`Found ${state.results.length} videos.`);
+  }catch(err){
+    state.results=[];
+    renderResults();
+    setAiStatus('ready','YouTube search failed. Search diagnostics and ranking can be improved later.');
+    showToast(err.message||'YouTube search failed.');
+  }
+}
 
-    els.results.addEventListener('click', event => {
-      const playBtn = event.target.closest('[data-result-play]');
-      if(playBtn){
-        const video = state.results[Number(playBtn.dataset.resultPlay)];
-        if(video) setCurrent(video);
-        return;
-      }
-      const queueBtn = event.target.closest('[data-result-queue]');
-      if(queueBtn){
-        const video = state.results[Number(queueBtn.dataset.resultQueue)];
-        if(video) queueVideo(video);
-      }
-    });
+function loadManualVideo(){
+  const videoId=getVideoId(els.manualInput.value);
+  if(!videoId){
+    showToast('Paste a valid YouTube URL or 11-character video ID.');
+    return;
+  }
+  const video={
+    videoId,
+    title:'Manual YouTube video',
+    channelTitle:'Manual load',
+    description:'Loaded from pasted URL or video ID',
+    sourceLabel:'Manual YouTube load'
+  };
+  queueVideo(video);
+  setCurrentVideo(video,'queue',state.queue.findIndex(item=>item.videoId===video.videoId));
+}
 
-    els.queue.addEventListener('click', event => {
-      const playBtn = event.target.closest('[data-queue-play]');
-      if(playBtn){
-        const video = state.queue[Number(playBtn.dataset.queuePlay)];
-        if(video) setCurrent(video);
-        return;
-      }
-      const removeBtn = event.target.closest('[data-queue-remove]');
-      if(removeBtn){
-        state.queue.splice(Number(removeBtn.dataset.queueRemove), 1);
-        saveQueue();
-        renderQueue();
-        showToast('Removed from queue.');
-      }
-    });
+function resetApp(){
+  localStorage.removeItem(storage.queue);
+  localStorage.removeItem('ytdj_last_query');
+  state.queue=[];
+  state.results=[];
+  state.current=null;
+  state.currentIndex=-1;
+  els.videoFrame.src='about:blank';
+  els.videoPlaceholder.style.display='flex';
+  els.songTitle.textContent='No video selected';
+  els.songMeta.textContent='Search YouTube or paste a direct link to start building the new player flow';
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('time-dur').textContent='video';
+  renderResults();
+  renderQueue();
+  showToast('Queue and current video cleared.');
+}
 
-    loadSavedState();
-  </script>
+function showFutureBackendNote(){
+  showToast('Next steps: better ranking, safer result filtering, and personal taste tuning.');
+}
+
+els.resultsList.addEventListener('click',event=>{
+  const playBtn=event.target.closest('[data-result-play]');
+  if(playBtn){
+    const index=Number(playBtn.dataset.resultPlay);
+    const item=state.results[index];
+    if(item) setCurrentVideo(item,'results',index);
+    return;
+  }
+  const queueBtn=event.target.closest('[data-result-queue]');
+  if(queueBtn){
+    const index=Number(queueBtn.dataset.resultQueue);
+    const item=state.results[index];
+    if(item) queueVideo(item);
+  }
+});
+
+els.queueList.addEventListener('click',event=>{
+  const playBtn=event.target.closest('[data-queue-play]');
+  if(playBtn){
+    const index=Number(playBtn.dataset.queuePlay);
+    const item=state.queue[index];
+    if(item) setCurrentVideo(item,'queue',index);
+    return;
+  }
+  const removeBtn=event.target.closest('[data-queue-remove]');
+  if(removeBtn){
+    removeQueueItem(Number(removeBtn.dataset.queueRemove));
+  }
+});
+
+loadSetup();
+loadQueue();
+renderResults();
+renderQueue();
+if(localStorage.getItem(storage.apiKey)||localStorage.getItem(storage.model)||localStorage.getItem(storage.vibe)){
+  els.setupScreen.style.display='none';
+  els.app.style.display='flex';
+}
+</script>
 </body>
 </html>
+
+
