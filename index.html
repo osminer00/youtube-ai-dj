@@ -1,9 +1,9 @@
-﻿∩╗┐Γê⌐ΓòùΓöÉ<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube AI DJ v0.2.3</title>
+<title>YouTube AI DJ v0.2.4</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -11,15 +11,13 @@
   --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
   --text:#e8e8e8;--text2:#888;--text3:#444;
-  --red:#ff4e45;--red2:#e6453d;
-  --green:#1db954;--green2:#1aa34a;
-  --r1:#4ade80;--r2:#a3e635;--r3:#facc15;--r4:#fb923c;--r5:#f87171;
+  --red:#ff4e45;--red2:#e6453d;--accent:#7c6ef5;
 }
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 button,input,textarea{font:inherit}
 
 /* SETUP SCREEN */
-#setup-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;}
+#setup-screen{display:flex;flex:1;min-height:0;align-items:center;justify-content:center;padding:40px 20px;overflow-y:auto;}
 .setup-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:40px;max-width:560px;width:100%;}
 .setup-card h1{font-size:20px;font-weight:500;margin-bottom:6px;letter-spacing:-.3px;}
 .setup-card p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px;}
@@ -38,7 +36,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
 .setup-note a{color:var(--text2);text-decoration:underline;}
 
 /* MAIN APP */
-#app{display:none;flex:1;flex-direction:column;}
+#app{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;}
 .header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);}
 .header-left{display:flex;align-items:center;gap:12px;}
 .logo{font-size:14px;font-weight:500;letter-spacing:.5px;color:var(--text2);}
@@ -50,95 +48,106 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
 .btn-sm:hover{background:var(--bg3);color:var(--text);}
 
 /* PLAYER LAYOUT */
-.player-wrap{display:grid;grid-template-columns:1fr 380px;flex:1;min-height:0;}
+.player-wrap{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,28vw,380px);flex:1;min-height:0;overflow:hidden;}
 
 /* NOW PLAYING */
-.now-playing{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 40px;gap:26px;}
-.album-art-wrap{position:relative;}
-.video-frame-wrap{width:320px;height:320px;border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--border);display:block;position:relative;}
+.now-playing{min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:clamp(14px,2.4vh,32px) clamp(16px,3vw,40px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable both-edges;}
+.player-stage{position:relative;width:min(100%,720px);margin-block:auto;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,1.8vh,20px);}
+.dj-input-wrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;}
+.dj-unified-input,.dj-secondary-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:9px 14px;outline:none;transition:border-color .15s;}
+.dj-secondary-input{font-family:'IBM Plex Mono',monospace;font-size:12px;}
+.dj-unified-input:focus,.dj-secondary-input:focus{border-color:rgba(255,255,255,.3);}
+.ai-think{width:100%;max-width:360px;min-width:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;min-height:44px;display:flex;align-items:flex-start;gap:10px;}
+.ai-think-dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:5px;}
+.ai-think-dot.thinking{animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.ai-think-text{min-width:0;font-size:12.5px;color:var(--text2);line-height:1.6;overflow-wrap:anywhere;}
+.album-art-wrap{position:relative;width:clamp(220px,36vh,420px);aspect-ratio:16/9;max-width:100%;}
+.album-art{width:100%;height:100%;border-radius:12px;object-fit:cover;background:var(--bg3);display:none;}
+.album-art-placeholder{width:100%;height:100%;border-radius:12px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:absolute;inset:0;}
+.album-art-placeholder svg{opacity:.15;}
+.video-frame-wrap{position:absolute;inset:0;border-radius:12px;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .18s ease;}
+.video-frame-wrap.active{pointer-events:auto;opacity:1;}
 .video-frame-wrap iframe{width:100%;height:100%;border:0;background:#000;}
-.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;background:linear-gradient(180deg,rgba(255,78,69,.12),transparent 40%),#111;}
-.video-placeholder svg{opacity:.2}
-.video-placeholder span{font-size:12px;color:var(--text2);line-height:1.7;max-width:220px}
 .song-info{text-align:center;width:100%;max-width:360px;}
-.song-title{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px;line-height:1.3;}
-.song-meta{font-size:13px;color:var(--text2);line-height:1.8;}
+.song-title{font-size:clamp(18px,2.2vh,20px);font-weight:600;letter-spacing:-.4px;margin-bottom:4px;line-height:1.3;}
+.song-meta{font-size:clamp(12px,1.5vh,13px);color:var(--text2);line-height:1.7;}
 .song-meta span{color:var(--text3);}
 
 /* PROGRESS */
 .progress-wrap{width:100%;max-width:360px;}
 .progress-bar-bg{height:2px;background:var(--bg4);border-radius:2px;position:relative;}
-.progress-bar-fill{height:100%;border-radius:2px;background:var(--text);width:0%;}
+.progress-bar-fill{height:100%;border-radius:2px;background:var(--text);transition:width .5s linear;pointer-events:none;width:0%;}
 .progress-times{display:flex;justify-content:space-between;margin-top:6px;}
 .progress-times span{font-size:10.5px;color:var(--text3);font-family:'IBM Plex Mono',monospace;}
 
 /* CONTROLS */
-.controls{display:flex;align-items:center;justify-content:center;gap:20px;}
+.controls{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,20px);}
 .ctrl-btn{background:none;border:none;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:color .15s;padding:6px;}
 .ctrl-btn:hover{color:var(--text);}
-.ctrl-btn.play{width:48px;height:48px;background:var(--text);border-radius:50%;color:var(--bg);transition:transform .12s,background .15s;}
+.ctrl-btn.play{width:clamp(42px,5vh,48px);height:clamp(42px,5vh,48px);background:var(--text);border-radius:50%;color:var(--bg);transition:transform .12s,background .15s;}
 .ctrl-btn.play:hover{transform:scale(1.04);background:#fff;}
+.suggestions-wrap{position:absolute;left:0;top:50%;transform:translateY(-30%);width:112px;}
+.suggestions-label{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.suggestions-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.suggestion-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:all .15s;}
+.suggestion-card:hover{border-color:var(--border2);background:var(--bg4);}
+.suggestion-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+.suggestion-card .sc-info{padding:5px 6px;}
+.suggestion-card .sc-title{font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.suggestion-card .sc-artist{font-size:9.5px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.sug-more-btn{display:none;width:100%;align-items:center;justify-content:center;gap:5px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-family:'Inter',sans-serif;font-size:11px;font-weight:500;padding:7px 14px;cursor:pointer;transition:all .15s;margin-top:6px;}
+.sug-more-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--border2);}
 
-/* RATING PANEL */
-.rating-panel{border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0;}
-.panel-section{padding:20px 24px;border-bottom:1px solid var(--border);}
+/* RIGHT PANEL */
+.queue-panel{min-height:0;border-left:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg2);overflow:hidden;}
+.queue-tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid var(--border);}
+.queue-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:12px 14px;cursor:pointer;transition:all .15s;}
+.queue-tab:hover{color:var(--text2);}
+.queue-tab.active{color:var(--text);border-bottom-color:var(--red);}
+.panel-section{padding:18px 24px 16px;border-bottom:1px solid var(--border);}
 .panel-label{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-weight:500;margin-bottom:14px;}
 .rate-question{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;}
-.rating-btns{display:flex;flex-direction:column;gap:6px;}
-.rate-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .15s;text-align:left;width:100%;}
-.rate-btn:hover{border-color:var(--border2);background:var(--bg3);}
-.rate-btn.selected{border-color:currentColor;}
-.rate-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.rate-label{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);font-weight:400;}
-.rate-btn[data-r="1"] .rate-dot{background:var(--r1);}
-.rate-btn[data-r="2"] .rate-dot{background:var(--r2);}
-.rate-btn[data-r="3"] .rate-dot{background:var(--r3);}
-.rate-btn[data-r="4"] .rate-dot{background:var(--r4);}
-.rate-btn[data-r="5"] .rate-dot{background:var(--r5);}
-.rate-btn[data-r="1"].selected{color:var(--r1);background:rgba(74,222,128,.06);}
-.rate-btn[data-r="2"].selected{color:var(--r2);background:rgba(163,230,53,.06);}
-.rate-btn[data-r="3"].selected{color:var(--r3);background:rgba(250,204,21,.06);}
-.rate-btn[data-r="4"].selected{color:var(--r4);background:rgba(251,146,60,.06);}
-.rate-btn[data-r="5"].selected{color:var(--r5);background:rgba(248,113,113,.06);}
-
-/* AI STATUS */
-.ai-status{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);}
-.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
-.ai-dot.thinking{animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-.ai-text{font-size:12px;color:var(--text2);line-height:1.5;}
-
-/* QUEUE + RESULTS */
-.queue-wrap{flex:1;overflow-y:auto;padding:0;min-height:0;}
+.helper-note{font-size:11px;color:var(--text3);line-height:1.7;}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.chip{font-size:10px;padding:5px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);letter-spacing:.7px;text-transform:uppercase;}
+.queue-wrap{flex:1;min-height:0;overflow-y:auto;padding:0;overscroll-behavior:contain;}
 .queue-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px 10px;position:sticky;top:0;background:var(--bg2);z-index:1;}
 .queue-empty{padding:24px;font-size:12.5px;color:var(--text3);text-align:center;line-height:1.8;}
-.queue-item{display:flex;align-items:flex-start;gap:10px;padding:10px 16px 10px 24px;border-bottom:1px solid var(--border);transition:background .12s;}
+.queue-item{display:flex;align-items:center;gap:10px;padding:10px 16px 10px 24px;border-bottom:1px solid var(--border);transition:background .12s;}
 .queue-item:hover{background:var(--bg3);}
-.queue-item.now{background:rgba(255,78,69,0.07);}
-.qi-art{width:38px;height:38px;border-radius:5px;display:grid;place-items:center;background:var(--bg3);flex-shrink:0;color:var(--text3);font-size:10px;border:1px solid var(--border);}
+.queue-item.now{border:2px solid var(--accent);border-radius:8px;background:rgba(124,110,245,0.08);margin:2px 8px;padding:8px 8px 8px 16px;}
+.queue-item.upcoming{border-left:2px solid rgba(124,110,245,0.35);padding-left:22px;}
+.queue-section-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:8px 24px 4px;display:flex;align-items:center;gap:6px;}
+.queue-section-label.now-label{color:var(--accent);}
+.queue-section-label.next-label{color:var(--accent);border-top:1px solid rgba(124,110,245,0.2);margin-top:4px;}
+.queue-section-label.played-label{color:var(--text3);border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;}
+.qi-art{width:38px;height:38px;border-radius:5px;object-fit:cover;background:var(--bg3);flex-shrink:0;border:1px solid var(--border);}
 .qi-info{flex:1;min-width:0;}
+.qi-info.clickable{cursor:pointer;transition:opacity .15s;}
+.qi-info.clickable:hover{opacity:.8;}
 .qi-title{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .qi-artist{font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .qi-meta{font-size:10px;color:var(--text3);margin-top:4px;}
 .qi-actions{display:flex;gap:6px;flex-shrink:0;}
+.pane{display:none;}
+.pane.active{display:block;}
 .mini-btn{background:transparent;border:1px solid var(--border2);border-radius:999px;color:var(--text2);padding:5px 10px;font-size:11px;cursor:pointer;}
 .mini-btn:hover{background:var(--bg3);color:var(--text);}
-
-/* EXTRA */
-.search-grid{display:grid;grid-template-columns:1fr;gap:12px}
-.helper-note{font-size:11px;color:var(--text3);line-height:1.7;}
-.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
-.chip{font-size:10px;padding:5px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);letter-spacing:.7px;text-transform:uppercase;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-size:13px;color:var(--text);opacity:0;transition:all .25s;pointer-events:none;z-index:100;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px;}
 @media(max-width:700px){
-  .player-wrap{grid-template-columns:1fr;}
-  .rating-panel{border-left:none;border-top:1px solid var(--border);}
-  .now-playing{padding:32px 20px;}
-  .video-frame-wrap{width:min(320px,80vw);height:min(320px,80vw);}
+  #app{overflow:hidden;}
+  .player-wrap{grid-template-columns:1fr;overflow-y:auto;}
+  .now-playing{padding:24px 20px;}
+  .player-stage{width:min(100%,420px);}
+  .suggestions-wrap{position:static;transform:none;width:100%;max-width:360px;order:10;}
+  .suggestions-grid{grid-template-columns:repeat(4,1fr);}
+  .sug-more-btn{display:none!important;}
+  .queue-panel{min-height:320px;border-left:none;border-top:1px solid var(--border);overflow:visible;}
 }
 </style>
 </head>
@@ -147,10 +156,10 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
 <div id="setup-screen">
   <div class="setup-card">
     <h1>YouTube AI DJ Setup</h1>
-    <p>Version v0.2.3. Same shell, new source. This edition keeps the refined AI DJ UI and uses the official YouTube player for search-driven music video playback.</p>
+    <p>Version v0.2.4. Same shell, new source. This edition keeps the refined AI DJ UI and uses the official YouTube player for search-driven music video playback.</p>
     <div class="setup-steps">
       <ol>
-        <li>Add your <strong>YouTube Data API key</strong> for search results</li>
+        <li>Add your <strong>YouTube Data API key</strong> or a hosted <strong>search proxy URL</strong></li>
         <li>Pick your <strong>Ollama model</strong> for future recommendation tuning</li>
         <li>Optionally save a <strong>taste note</strong> for future ranking ideas</li>
         <li>Open the app and use <strong>Search YouTube</strong> or paste a direct video URL</li>
@@ -158,19 +167,21 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
     </div>
     <label for="youtube-api-key-input">YouTube Data API Key</label>
     <input type="text" id="youtube-api-key-input" placeholder="Paste your API key here" />
+    <label for="search-proxy-input">Search Proxy URL</label>
+    <input type="text" id="search-proxy-input" placeholder="https://your-worker.your-subdomain.workers.dev" />
     <label for="api-key-input">Ollama Model</label>
     <input type="text" id="api-key-input" placeholder="llama3.2" value="llama3.2" />
     <label for="vibe-prompt-input">Future recommendation note</label>
     <textarea id="vibe-prompt-input" placeholder="Prefer official uploads, live sessions, soft rock at night, avoid lyric videos unless no better match exists."></textarea>
     <button class="btn-primary" onclick="enterApp()">Open YouTube AI DJ</button>
-    <p class="setup-note">For now this stays focused on personal search, ranking, and queueing around official YouTube playback.</p>
+    <p class="setup-note">Personal mode can use a pasted API key. Shared or cloud mode should use a hosted proxy so the key stays off the page.</p>
   </div>
 </div>
 
 <div id="app">
   <div class="header">
     <div class="header-left">
-      <div class="logo"><span>AI</span> DJ <span style="color:var(--text3);font-weight:500;">v0.2.3</span></div>
+      <div class="logo"><span>AI</span> DJ <span style="color:var(--text3);font-weight:500;">v0.2.4</span></div>
       <div class="status-dot" id="status-dot"></div>
       <div class="status-text" id="status-text">YouTube edition ready</div>
     </div>
@@ -185,87 +196,86 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
 
   <div class="player-wrap">
     <div class="now-playing">
-      <div class="album-art-wrap">
-        <div class="video-frame-wrap" id="video-wrap">
-          <iframe id="video-frame" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-          <div class="video-placeholder" id="video-placeholder">
+      <div class="player-stage">
+        <div class="dj-input-wrap">
+          <input type="text" class="dj-unified-input" id="search-query-input" placeholder="Tell the DJ what to pull from YouTube..." onkeydown="if(event.key==='Enter')searchYouTube()">
+          <input type="text" class="dj-secondary-input" id="manual-url-input" placeholder="Paste a YouTube URL or video ID for a direct load" onkeydown="if(event.key==='Enter')loadManualVideo()">
+        </div>
+
+        <div class="ai-think" id="ai-think">
+          <div class="ai-think-dot" id="ai-dot"></div>
+          <div class="ai-think-text" id="ai-text">Search results and queue ordering can get smarter with recommendation tuning later.</div>
+        </div>
+
+        <div class="album-art-wrap">
+          <div class="album-art-placeholder" id="art-placeholder">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            <span>Load a YouTube video and it will appear here in the main media stage.</span>
+          </div>
+          <img id="album-art" class="album-art" alt="YouTube thumbnail" />
+          <div class="video-frame-wrap" id="video-wrap">
+            <iframe id="video-frame" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
           </div>
         </div>
-      </div>
 
-      <div class="song-info">
-        <div class="song-title" id="song-title">No video selected</div>
-        <div class="song-meta" id="song-meta">Search YouTube or paste a direct link to start building the new player flow</div>
-      </div>
-
-      <div class="progress-wrap">
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progress-fill"></div>
+        <div class="song-info">
+          <div class="song-title" id="song-title">No video selected</div>
+          <div class="song-meta" id="song-meta">Search YouTube or paste a direct link to start building the new player flow</div>
         </div>
-        <div class="progress-times">
-          <span id="time-cur">0:00</span>
-          <span id="time-dur">video</span>
-        </div>
-      </div>
 
-      <div class="controls">
-        <button class="ctrl-btn" onclick="playPreviousVideo()" title="Previous in queue">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-        </button>
-        <button class="ctrl-btn play" onclick="replayCurrentVideo()" title="Replay current video">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <button class="ctrl-btn" onclick="playNextQueuedVideo()" title="Next queued video">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-        </button>
+        <div class="progress-wrap">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-times">
+            <span id="time-cur">0:00</span>
+            <span id="time-dur">video</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="ctrl-btn" onclick="playPreviousVideo()" title="Previous in queue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+          </button>
+          <button class="ctrl-btn play" onclick="replayCurrentVideo()" title="Replay current video">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="ctrl-btn" onclick="playNextQueuedVideo()" title="Next queued video">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+        </div>
+
+        <div class="suggestions-wrap" id="suggestions-wrap" style="display:none;">
+          <div class="suggestions-label">Suggestions</div>
+          <div class="suggestions-grid" id="suggestions-grid"></div>
+          <button class="sug-more-btn" id="sug-more-btn" onclick="loadMoreSuggestions()">+ Show more</button>
+        </div>
       </div>
     </div>
 
-    <div class="rating-panel">
-      <div class="panel-section">
-        <div class="panel-label">Video Search</div>
-        <div class="rate-question">Use the side panel to search YouTube, paste a direct link, and keep a queue of official playback candidates.</div>
-        <div class="search-grid">
-          <div>
-            <label for="search-query-input">Track, artist, or vibe</label>
-            <input type="text" id="search-query-input" placeholder="Daft Punk Something About Us official music video" onkeydown="if(event.key==='Enter')searchYouTube()">
-          </div>
-          <div>
-            <label for="manual-url-input">Manual YouTube URL or video ID</label>
-            <input type="text" id="manual-url-input" placeholder="https://www.youtube.com/watch?v=..." onkeydown="if(event.key==='Enter')loadManualVideo()">
-          </div>
-          <div class="chip-row">
-            <div class="chip">Legacy shell reused</div>
-            <div class="chip">YouTube player swapped in</div>
-            <div class="chip">Recommendation logic next</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-section">
-        <div class="ai-status" id="ai-status">
-          <div class="ai-dot" id="ai-dot"></div>
-          <div class="ai-text" id="ai-text">Search results and queue ordering can get smarter with recommendation tuning later.</div>
-        </div>
-        <div class="helper-note" style="margin-top:12px;">The current YouTube edition is UI-first on purpose: same visual rhythm as the earlier AI DJ build, but focused on official YouTube search and embedded playback.</div>
+    <div class="queue-panel">
+      <div class="queue-tabs">
+        <button class="queue-tab active" id="tab-queue" onclick="switchPanelTab('queue')">Que</button>
+        <button class="queue-tab" id="tab-results" onclick="switchPanelTab('results')">Search Results</button>
       </div>
 
       <div class="queue-wrap">
-        <div class="queue-header">
-          <div class="panel-label" style="margin:0;">Search Results</div>
-          <button class="mini-btn" onclick="searchYouTube()">Refresh</button>
+        <div class="pane active" id="pane-results">
+          <div class="queue-header">
+            <div class="panel-label" style="margin:0;">Search Results</div>
+            <button class="mini-btn" onclick="searchYouTube()">Refresh</button>
+          </div>
+          <div id="results-list">
+            <div class="queue-empty">Add a YouTube API key or proxy URL and search to populate video results here.</div>
+          </div>
         </div>
-        <div id="results-list">
-          <div class="queue-empty">Add a YouTube API key and search to populate video results here.</div>
-        </div>
-        <div class="queue-header">
-          <div class="panel-label" style="margin:0;">Queue</div>
-          <button class="mini-btn" onclick="clearQueue()">Clear Queue</button>
-        </div>
-        <div id="queue-list">
-          <div class="queue-empty">Queued videos will appear here.</div>
+        <div class="pane" id="pane-queue">
+          <div class="queue-header">
+            <div class="panel-label" style="margin:0;">Queue</div>
+            <button class="mini-btn" onclick="clearQueue()">Clear Queue</button>
+          </div>
+          <div id="queue-list">
+            <div class="queue-empty">Queued videos will appear here.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -277,6 +287,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.6;}
 <script>
 const storage={
   apiKey:'ytdj_api_key',
+  proxyUrl:'ytdj_proxy_url',
   model:'ytdj_ollama_model',
   vibe:'ytdj_vibe_prompt',
   queue:'ytdj_queue'
@@ -285,25 +296,43 @@ const storage={
 const state={
   queue:[],
   results:[],
+  history:[],
   current:null,
   currentIndex:-1,
-  currentResultIndex:-1
+  currentResultIndex:-1,
+  activeTab:'queue',
+  suggestionLimit:4,
+  searchInFlight:false,
+  lastSearchQuery:'',
+  lastSearchAt:0,
+  videoDetailsCache:{},
+  videoDetailsPending:{}
 };
 
 const els={
   setupScreen:document.getElementById('setup-screen'),
   app:document.getElementById('app'),
   apiKeyInput:document.getElementById('youtube-api-key-input'),
+  proxyInput:document.getElementById('search-proxy-input'),
   modelInput:document.getElementById('api-key-input'),
   vibeInput:document.getElementById('vibe-prompt-input'),
   searchInput:document.getElementById('search-query-input'),
   manualInput:document.getElementById('manual-url-input'),
+  albumArt:document.getElementById('album-art'),
+  artPlaceholder:document.getElementById('art-placeholder'),
+  videoWrap:document.getElementById('video-wrap'),
   videoFrame:document.getElementById('video-frame'),
-  videoPlaceholder:document.getElementById('video-placeholder'),
   songTitle:document.getElementById('song-title'),
   songMeta:document.getElementById('song-meta'),
   resultsList:document.getElementById('results-list'),
   queueList:document.getElementById('queue-list'),
+  suggestionsWrap:document.getElementById('suggestions-wrap'),
+  suggestionsGrid:document.getElementById('suggestions-grid'),
+  moreSuggestionsBtn:document.getElementById('sug-more-btn'),
+  resultsPane:document.getElementById('pane-results'),
+  queuePane:document.getElementById('pane-queue'),
+  resultsTab:document.getElementById('tab-results'),
+  queueTab:document.getElementById('tab-queue'),
   ratingCount:document.getElementById('rating-count'),
   aiText:document.getElementById('ai-text'),
   aiDot:document.getElementById('ai-dot'),
@@ -312,6 +341,8 @@ const els={
 };
 
 let toastTimer;
+const hostedPlayerOrigin='https://osminer00.github.io';
+const hostedPlayerUrl='https://osminer00.github.io/youtube-embed-test/player.html';
 
 function esc(value){
   return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -324,17 +355,96 @@ function showToast(msg){
   toastTimer=setTimeout(()=>els.toast.classList.remove('show'),2800);
 }
 
+function getHostedPlayerSrc(videoId=''){
+  const params=new URLSearchParams({
+    origin:window.location.origin
+  });
+  if(videoId) params.set('v',videoId);
+  return `${hostedPlayerUrl}?${params.toString()}`;
+}
+
 function setAiStatus(stateName,text){
-  els.aiDot.className='ai-dot'+(stateName==='thinking'?' thinking':'');
+  els.aiDot.className='ai-think-dot'+(stateName==='thinking'?' thinking':'');
   els.aiText.textContent=text;
+}
+
+window.addEventListener('message',event=>{
+  if(event.origin!==hostedPlayerOrigin) return;
+  const data=event.data||{};
+  if(data.type==='ytdj-video-ended'){
+    if(state.queue.length>1){
+      playNextQueuedVideo();
+    }
+    return;
+  }
+  if(data.type==='ytdj-player-error'){
+    if(state.current){
+      state.current.embeddable=false;
+      state.current.embedCheckComplete=true;
+      state.current.sourceLabel='Playback blocked';
+      setAiStatus('ready','Hosted player could not play that video. Skipping to the next queued song if available.');
+      showToast('Skipped a blocked video.');
+      renderResults();
+      renderQueue();
+      renderSuggestions();
+      if(state.queue.length>1){
+        playNextQueuedVideo();
+      }
+    }
+  }
+});
+
+function playVideoInFrame(videoId){
+  if(!videoId) return;
+  els.videoFrame.src=getHostedPlayerSrc(videoId);
 }
 
 function updateHeaderCount(){
   els.ratingCount.textContent=`${state.queue.length} videos saved`;
 }
 
+function getThumbnailUrl(video){
+  if(video?.thumbnail) return video.thumbnail;
+  return '';
+}
+
+function switchPanelTab(tab){
+  state.activeTab=tab;
+  els.resultsTab.classList.toggle('active',tab==='results');
+  els.queueTab.classList.toggle('active',tab==='queue');
+  els.resultsPane.classList.toggle('active',tab==='results');
+  els.queuePane.classList.toggle('active',tab==='queue');
+}
+
+function loadMoreSuggestions(){
+  state.suggestionLimit=Math.min(state.suggestionLimit+4,state.results.length);
+  renderSuggestions();
+}
+
+function renderSuggestions(){
+  const suggestions=state.results.filter(item=>item.videoId!==state.current?.videoId).slice(0,state.suggestionLimit);
+  if(!suggestions.length){
+    els.suggestionsWrap.style.display='none';
+    els.suggestionsGrid.innerHTML='';
+    return;
+  }
+  els.suggestionsWrap.style.display='block';
+  els.suggestionsGrid.innerHTML=suggestions.map((item,index)=>{
+    const thumbnail=esc(getThumbnailUrl(item));
+    return `<button class="suggestion-card" type="button" data-suggestion-index="${index}">
+      <img src="${thumbnail}" alt="Suggested YouTube thumbnail" loading="lazy" />
+      <div class="sc-info">
+        <div class="sc-title">${esc(item.title)}</div>
+        <div class="sc-artist">${esc(item.channelTitle||'YouTube')}</div>
+      </div>
+    </button>`;
+  }).join('');
+  els.moreSuggestionsBtn.style.display=state.results.length>state.suggestionLimit?'flex':'none';
+}
+
 function saveSetup(){
   localStorage.setItem(storage.apiKey,els.apiKeyInput.value.trim());
+  localStorage.setItem(storage.proxyUrl,els.proxyInput.value.trim());
   localStorage.setItem(storage.model,els.modelInput.value.trim());
   localStorage.setItem(storage.vibe,els.vibeInput.value.trim());
 }
@@ -346,6 +456,13 @@ function saveSetupFromApp(){
 
 function loadSetup(){
   els.apiKeyInput.value=localStorage.getItem(storage.apiKey)||'';
+  const savedProxy=localStorage.getItem(storage.proxyUrl)||'';
+  if(isLocalProxyUrl(savedProxy)){
+    localStorage.removeItem(storage.proxyUrl);
+    els.proxyInput.value='';
+  }else{
+    els.proxyInput.value=savedProxy;
+  }
   els.modelInput.value=localStorage.getItem(storage.model)||'llama3.2';
   els.vibeInput.value=localStorage.getItem(storage.vibe)||'';
   els.searchInput.value=localStorage.getItem('ytdj_last_query')||'';
@@ -377,54 +494,225 @@ function enterApp(){
 function getVideoId(input){
   const value=String(input||'').trim();
   if(!value) return '';
-  const match=value.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  const match=value.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
   if(match) return match[1];
   if(/^[A-Za-z0-9_-]{11}$/.test(value)) return value;
   return '';
 }
 
+function describeNetworkError(err, proxyUrl, action){
+  const target=proxyUrl||'YouTube API';
+  if(err instanceof TypeError){
+    if(proxyUrl){
+      return `${action} failed because the saved search proxy (${target}) is offline. Clear Search Proxy URL or run the proxy on port 8787.`;
+    }
+    return `${action} failed because the network request did not complete.`;
+  }
+  return err?.message||`${action} failed.`;
+}
+
+function isLocalProxyUrl(proxyUrl){
+  return /^https?:\/\/(?:127\.0\.0\.1|localhost):8787$/i.test(String(proxyUrl||'').trim());
+}
+
+function clearOfflineLocalProxy(proxyUrl){
+  if(!isLocalProxyUrl(proxyUrl)) return false;
+  els.proxyInput.value='';
+  localStorage.removeItem(storage.proxyUrl);
+  return true;
+}
+
+async function fetchVideoDetails(videoId){
+  if(state.videoDetailsCache[videoId]!==undefined){
+    return state.videoDetailsCache[videoId];
+  }
+  if(state.videoDetailsPending[videoId]){
+    return state.videoDetailsPending[videoId];
+  }
+  const apiKey=els.apiKeyInput.value.trim();
+  const proxyUrl=els.proxyInput.value.trim().replace(/\/$/,'');
+  const pending=(async()=>{
+    let res;
+    try{
+      if(proxyUrl){
+        res=await fetch(`${proxyUrl}/video?id=${encodeURIComponent(videoId)}`);
+      }else if(apiKey){
+        const params=new URLSearchParams({
+          part:'snippet,status',
+          id:videoId,
+          key:apiKey
+        });
+        res=await fetch(`https://www.googleapis.com/youtube/v3/videos?${params.toString()}`);
+      }else{
+        return null;
+      }
+    }catch(err){
+      if(proxyUrl && !apiKey){
+        const cleared=clearOfflineLocalProxy(proxyUrl);
+        setAiStatus('ready','Saved search proxy is offline. Manual link playback can still try to load, but search will not work until you add an API key or start the proxy again.');
+        showToast(cleared?'Offline localhost proxy was cleared. Manual load is continuing without verification.':'Saved search proxy is offline. Manual load is continuing without verification.');
+        return null;
+      }
+      if(proxyUrl && apiKey && clearOfflineLocalProxy(proxyUrl)){
+        const params=new URLSearchParams({
+          part:'snippet,status',
+          id:videoId,
+          key:apiKey
+        });
+        res=await fetch(`https://www.googleapis.com/youtube/v3/videos?${params.toString()}`);
+      }else{
+        throw new Error(describeNetworkError(err,proxyUrl,'Video lookup'));
+      }
+    }
+    if(!res){
+      return null;
+    }
+    let data;
+    try{
+      data=await res.json();
+    }catch(err){
+      throw new Error(describeNetworkError(err,proxyUrl,'Video lookup'));
+    }
+    if(!res.ok) throw new Error(data?.error?.message||`Video lookup failed (${res.status})`);
+    return Array.isArray(data.items) ? data.items[0]||null : null;
+  })();
+  state.videoDetailsPending[videoId]=pending;
+  try{
+    const details=await pending;
+    state.videoDetailsCache[videoId]=details;
+    return details;
+  }finally{
+    delete state.videoDetailsPending[videoId];
+  }
+}
+
+async function fetchSearchResults(query,apiKey,proxyUrl){
+  const searchParams=new URLSearchParams({
+    part:'snippet',
+    maxResults:'8',
+    q:query,
+    type:'video',
+    videoEmbeddable:'true'
+  });
+  let res;
+  try{
+    if(proxyUrl){
+      res=await fetch(`${proxyUrl}/search?${searchParams.toString()}`);
+    }else{
+      searchParams.set('key',apiKey);
+      const url='https://www.googleapis.com/youtube/v3/search?'+searchParams.toString();
+      res=await fetch(url);
+    }
+  }catch(err){
+    if(proxyUrl && apiKey && clearOfflineLocalProxy(proxyUrl)){
+      searchParams.set('key',apiKey);
+      const url='https://www.googleapis.com/youtube/v3/search?'+searchParams.toString();
+      res=await fetch(url);
+    }else{
+      throw new Error(describeNetworkError(err,proxyUrl,'YouTube search'));
+    }
+  }
+  let data;
+  try{
+    data=await res.json();
+  }catch(err){
+    throw new Error(describeNetworkError(err,proxyUrl,'YouTube search'));
+  }
+  if(!res.ok) throw new Error(data?.error?.message||`Search failed (${res.status})`);
+  return data;
+}
+
+function hydrateVideoFromDetails(video,details){
+  if(!video || !details) return video;
+  const snippet=details.snippet||{};
+  video.title=snippet.title||video.title||'Untitled video';
+  video.channelTitle=snippet.channelTitle||video.channelTitle||'YouTube';
+  video.description=snippet.description||video.description||'';
+  video.thumbnail=snippet.thumbnails?.high?.url||snippet.thumbnails?.medium?.url||snippet.thumbnails?.default?.url||video.thumbnail||'';
+  return video;
+}
+
+async function ensureEmbeddableVideo(video){
+  if(!video?.videoId) return null;
+  if(video.embedCheckComplete) return video;
+  let details=null;
+  try{
+    details=await fetchVideoDetails(video.videoId);
+  }catch(err){
+    showToast(err.message||'Unable to verify that video details.');
+    return video;
+  }
+  hydrateVideoFromDetails(video,details);
+  video.embedCheckComplete=true;
+  video.embeddable=details?.status?.embeddable!==false;
+  return video;
+}
+
+async function playVideoIfEmbeddable(video,sourceType='queue',index=-1){
+  const verified=await ensureEmbeddableVideo(video);
+  if(!verified) return;
+  setCurrentVideo(verified,sourceType,index);
+}
+
 function setCurrentVideo(video,sourceType='queue',index=-1){
+  if(state.current && state.current.videoId!==video.videoId){
+    state.history=state.history.filter(item=>item.videoId!==state.current.videoId);
+    state.history.unshift(state.current);
+    state.history=state.history.slice(0,20);
+  }
   state.current=video;
   if(sourceType==='queue') state.currentIndex=index;
   if(sourceType==='results') state.currentResultIndex=index;
-  els.videoFrame.src=`https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&mute=0&playsinline=1&rel=0&modestbranding=1`;
-  els.videoPlaceholder.style.display='none';
+  playVideoInFrame(video.videoId);
+  els.videoWrap.classList.add('active');
+  const thumbnail=getThumbnailUrl(video);
+  if(thumbnail){
+    els.albumArt.src=thumbnail;
+    els.albumArt.style.display='none';
+    els.artPlaceholder.style.display='none';
+  }else{
+    els.albumArt.removeAttribute('src');
+    els.albumArt.style.display='none';
+    els.artPlaceholder.style.display='none';
+  }
   els.songTitle.textContent=video.title||'Untitled video';
   const secondary=video.channelTitle||'YouTube';
-  const extra=video.description?` <span>╬ô├╢┬╝╬ô├▓├╗</span> ${esc(video.description).replace(/&quot;/g,'"')}`:'';
+  const extra=video.description?` <span>-</span> ${esc(video.description).replace(/&quot;/g,'"')}`:'';
   els.songMeta.innerHTML=`${esc(secondary)}${extra}`;
   els.statusText.textContent=video.sourceLabel||'Video loaded';
   document.getElementById('time-dur').textContent='live';
   document.getElementById('progress-fill').style.width='100%';
+  switchPanelTab('queue');
+  renderSuggestions();
   renderResults();
   renderQueue();
 }
 
-function replayCurrentVideo(){
+async function replayCurrentVideo(){
   if(!state.current){
     showToast('Load a video first.');
     return;
   }
-  setCurrentVideo(state.current,'queue',state.currentIndex);
+  await playVideoIfEmbeddable(state.current,'queue',state.currentIndex);
   showToast('Replaying current video.');
 }
 
-function playPreviousVideo(){
+async function playPreviousVideo(){
   if(!state.queue.length){
     showToast('Queue is empty.');
     return;
   }
   let nextIndex=state.currentIndex<=0?state.queue.length-1:state.currentIndex-1;
-  setCurrentVideo(state.queue[nextIndex],'queue',nextIndex);
+  await playVideoIfEmbeddable(state.queue[nextIndex],'queue',nextIndex);
 }
 
-function playNextQueuedVideo(){
+async function playNextQueuedVideo(){
   if(!state.queue.length){
     showToast('Queue is empty.');
     return;
   }
   let nextIndex=state.currentIndex>=state.queue.length-1||state.currentIndex<0?0:state.currentIndex+1;
-  setCurrentVideo(state.queue[nextIndex],'queue',nextIndex);
+  await playVideoIfEmbeddable(state.queue[nextIndex],'queue',nextIndex);
 }
 
 function queueVideo(video){
@@ -434,6 +722,7 @@ function queueVideo(video){
   }
   state.queue.push(video);
   saveQueue();
+  switchPanelTab('queue');
   renderQueue();
   if(!state.current){
     setCurrentVideo(video,'queue',state.queue.length-1);
@@ -459,14 +748,16 @@ function removeQueueItem(index){
 
 function renderResults(){
   if(!state.results.length){
-    els.resultsList.innerHTML='<div class="queue-empty">Add a YouTube API key and search to populate video results here.</div>';
+    els.resultsList.innerHTML='<div class="queue-empty">Add a YouTube API key or proxy URL and search to populate video results here.</div>';
+    renderSuggestions();
     return;
   }
   els.resultsList.innerHTML=state.results.map((item,index)=>{
     const isNow=state.current && state.current.videoId===item.videoId;
+    const thumbnail=esc(getThumbnailUrl(item));
     return `<div class="queue-item${isNow?' now':''}">
-      <div class="qi-art">YT</div>
-      <div class="qi-info">
+      <img class="qi-art" src="${thumbnail}" alt="YouTube thumbnail" loading="lazy" />
+      <div class="qi-info clickable" data-result-play="${index}">
         <div class="qi-title">${esc(item.title)}</div>
         <div class="qi-artist">${esc(item.channelTitle||'YouTube')}</div>
         <div class="qi-meta">${esc(item.sourceLabel||'Result')}</div>
@@ -477,105 +768,162 @@ function renderResults(){
       </div>
     </div>`;
   }).join('');
+  renderSuggestions();
+}
+
+function buildQueueItemHtml(item,section,index){
+  const thumbnail=esc(getThumbnailUrl(item));
+  const baseClass=section==='now'?'queue-item now':section==='upcoming'?'queue-item upcoming':'queue-item';
+  const meta=section==='history'?'Recently played':(item.sourceLabel||'Queued video');
+  const inQueue=index>=0;
+  const actionHtml=section==='history'
+    ?`<button class="mini-btn" data-history-queue="${item.videoId}">Queue</button>`
+    :(inQueue
+      ?`<button class="mini-btn" data-queue-remove="${index}">Remove</button>`
+      :`<button class="mini-btn" data-history-queue="${item.videoId}">Queue</button>`);
+  return `<div class="${baseClass}">
+    <img class="qi-art" src="${thumbnail}" alt="Queue thumbnail" loading="lazy" />
+    <div class="qi-info clickable" data-play-video="${esc(item.videoId)}">
+      <div class="qi-title">${esc(item.title)}</div>
+      <div class="qi-artist">${esc(item.channelTitle||'YouTube')}</div>
+      <div class="qi-meta">${esc(meta)}</div>
+    </div>
+    <div class="qi-actions">
+      <button class="mini-btn" data-play-video="${esc(item.videoId)}">Play</button>
+      ${actionHtml}
+    </div>
+  </div>`;
 }
 
 function renderQueue(){
   updateHeaderCount();
-  if(!state.queue.length){
+  const nowItem=state.current||null;
+  const upcoming=state.queue.filter(item=>item.videoId!==state.current?.videoId);
+  const recent=state.history.filter(item=>item.videoId!==state.current?.videoId).slice(0,12);
+  if(!nowItem && !upcoming.length && !recent.length){
     els.queueList.innerHTML='<div class="queue-empty">Queued videos will appear here.</div>';
     return;
   }
-  els.queueList.innerHTML=state.queue.map((item,index)=>{
-    const isNow=state.current && state.current.videoId===item.videoId;
-    return `<div class="queue-item${isNow?' now':''}">
-      <div class="qi-art">Q</div>
-      <div class="qi-info">
-        <div class="qi-title">${esc(item.title)}</div>
-        <div class="qi-artist">${esc(item.channelTitle||'YouTube')}</div>
-        <div class="qi-meta">${esc(item.sourceLabel||'Queued video')}</div>
-      </div>
-      <div class="qi-actions">
-        <button class="mini-btn" data-queue-play="${index}">Play</button>
-        <button class="mini-btn" data-queue-remove="${index}">Remove</button>
-      </div>
-    </div>`;
-  }).join('');
+  let html='';
+  if(nowItem){
+    html+=`<div class="queue-section-label now-label"><span style="width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;flex-shrink:0;"></span>NOW</div>`;
+    html+=buildQueueItemHtml(nowItem,'now',state.queue.findIndex(item=>item.videoId===nowItem.videoId));
+  }
+  if(upcoming.length){
+    html+=`<div class="queue-section-label next-label">NEXT ${upcoming.length}</div>`;
+    html+=upcoming.map(item=>buildQueueItemHtml(item,'upcoming',state.queue.findIndex(q=>q.videoId===item.videoId))).join('');
+  }
+  if(recent.length){
+    html+=`<div class="queue-section-label played-label">RECENTLY PLAYED</div>`;
+    html+=recent.map(item=>buildQueueItemHtml(item,'history',-1)).join('');
+  }
+  els.queueList.innerHTML=html;
 }
 
 async function searchYouTube(){
   const apiKey=els.apiKeyInput.value.trim();
+  const proxyUrl=els.proxyInput.value.trim().replace(/\/$/,'');
   const query=els.searchInput.value.trim();
   if(!query){
     showToast('Enter something to search for.');
     return;
   }
+  const now=Date.now();
+  if(state.searchInFlight){
+    showToast('Search already running.');
+    return;
+  }
+  if(query===state.lastSearchQuery && now-state.lastSearchAt<1200){
+    showToast('Please wait a moment before searching again.');
+    return;
+  }
+  state.searchInFlight=true;
+  state.lastSearchQuery=query;
+  state.lastSearchAt=now;
   localStorage.setItem('ytdj_last_query',query);
-  if(!apiKey){
-    showToast('Add a YouTube API key first for live search.');
+  if(!proxyUrl && !apiKey){
+    state.searchInFlight=false;
+    showToast('Add a YouTube API key or search proxy URL first.');
     return;
   }
   setAiStatus('thinking','Searching YouTube for embeddable music videos...');
+  switchPanelTab('results');
   els.resultsList.innerHTML='<div class="queue-empty">Searching YouTube...</div>';
   try{
-    const url='https://www.googleapis.com/youtube/v3/search?'+new URLSearchParams({
-      part:'snippet',
-      maxResults:'8',
-      q:query,
-      type:'video',
-      videoEmbeddable:'true',
-      key:apiKey
-    });
-    const res=await fetch(url);
-    const data=await res.json();
-    if(!res.ok) throw new Error(data?.error?.message||`Search failed (${res.status})`);
+    const data=await fetchSearchResults(query,apiKey,proxyUrl);
     state.results=(Array.isArray(data.items)?data.items:[]).map(item=>({
       videoId:item.id?.videoId,
       title:item.snippet?.title||'Untitled video',
       channelTitle:item.snippet?.channelTitle||'YouTube',
       description:item.snippet?.description||'',
+      thumbnail:item.snippet?.thumbnails?.high?.url||item.snippet?.thumbnails?.medium?.url||item.snippet?.thumbnails?.default?.url||'',
       sourceLabel:'YouTube search result'
     })).filter(item=>item.videoId);
+    state.suggestionLimit=4;
     renderResults();
     setAiStatus('ready',state.results.length?`Found ${state.results.length} video candidates. Ranking can get smarter as your taste model evolves.`:'No embeddable results found for that search.');
     showToast(`Found ${state.results.length} videos.`);
   }catch(err){
     state.results=[];
     renderResults();
-    setAiStatus('ready','YouTube search failed. Search diagnostics and ranking can be improved later.');
+    setAiStatus('ready',err.message||'YouTube search failed.');
     showToast(err.message||'YouTube search failed.');
+  }finally{
+    state.searchInFlight=false;
   }
 }
 
-function loadManualVideo(){
+async function loadManualVideo(){
   const videoId=getVideoId(els.manualInput.value);
   if(!videoId){
     showToast('Paste a valid YouTube URL or 11-character video ID.');
     return;
   }
+  let details=null;
+  try{
+    details=await fetchVideoDetails(videoId);
+  }catch(err){
+    showToast(err.message||'Unable to verify that video.');
+    return;
+  }
   const video={
     videoId,
-    title:'Manual YouTube video',
-    channelTitle:'Manual load',
-    description:'Loaded from pasted URL or video ID',
-    sourceLabel:'Manual YouTube load'
+    title:details?.snippet?.title||'Manual YouTube video',
+    channelTitle:details?.snippet?.channelTitle||'Manual load',
+    description:details?.snippet?.description||'Loaded from pasted URL or video ID',
+    thumbnail:details?.snippet?.thumbnails?.high?.url||details?.snippet?.thumbnails?.medium?.url||details?.snippet?.thumbnails?.default?.url||getThumbnailUrl({videoId}),
+    sourceLabel:'Manual YouTube load',
+    embeddable:details?.status?.embeddable!==false,
+    embedCheckComplete:Boolean(details)
   };
   queueVideo(video);
-  setCurrentVideo(video,'queue',state.queue.findIndex(item=>item.videoId===video.videoId));
+  await playVideoIfEmbeddable(video,'queue',state.queue.findIndex(item=>item.videoId===video.videoId));
 }
 
 function resetApp(){
+  localStorage.removeItem(storage.apiKey);
+  localStorage.removeItem(storage.proxyUrl);
+  localStorage.removeItem(storage.model);
+  localStorage.removeItem(storage.vibe);
   localStorage.removeItem(storage.queue);
   localStorage.removeItem('ytdj_last_query');
   state.queue=[];
   state.results=[];
+  state.history=[];
   state.current=null;
   state.currentIndex=-1;
+  state.currentResultIndex=-1;
+  state.suggestionLimit=4;
   els.videoFrame.src='about:blank';
-  els.videoPlaceholder.style.display='flex';
+  els.videoWrap.classList.remove('active');
+  els.albumArt.removeAttribute('src');
+  els.albumArt.style.display='none';
+  els.artPlaceholder.style.display='flex';
   els.songTitle.textContent='No video selected';
   els.songMeta.textContent='Search YouTube or paste a direct link to start building the new player flow';
   document.getElementById('progress-fill').style.width='0%';
   document.getElementById('time-dur').textContent='video';
+  switchPanelTab('results');
   renderResults();
   renderQueue();
   showToast('Queue and current video cleared.');
@@ -585,12 +933,12 @@ function showFutureBackendNote(){
   showToast('Next steps: better ranking, safer result filtering, and personal taste tuning.');
 }
 
-els.resultsList.addEventListener('click',event=>{
+els.resultsList.addEventListener('click',async event=>{
   const playBtn=event.target.closest('[data-result-play]');
   if(playBtn){
     const index=Number(playBtn.dataset.resultPlay);
     const item=state.results[index];
-    if(item) setCurrentVideo(item,'results',index);
+    if(item) await playVideoIfEmbeddable(item,'results',index);
     return;
   }
   const queueBtn=event.target.closest('[data-result-queue]');
@@ -601,31 +949,48 @@ els.resultsList.addEventListener('click',event=>{
   }
 });
 
-els.queueList.addEventListener('click',event=>{
-  const playBtn=event.target.closest('[data-queue-play]');
-  if(playBtn){
-    const index=Number(playBtn.dataset.queuePlay);
-    const item=state.queue[index];
-    if(item) setCurrentVideo(item,'queue',index);
+els.queueList.addEventListener('click',async event=>{
+  const playNode=event.target.closest('[data-play-video]');
+  if(playNode){
+    const videoId=playNode.dataset.playVideo;
+    const index=state.queue.findIndex(item=>item.videoId===videoId);
+    const item=(index>=0?state.queue[index]:null)||state.history.find(entry=>entry.videoId===videoId);
+    if(item) await playVideoIfEmbeddable(item,'queue',index);
     return;
   }
   const removeBtn=event.target.closest('[data-queue-remove]');
   if(removeBtn){
     removeQueueItem(Number(removeBtn.dataset.queueRemove));
+    return;
   }
+  const historyQueueBtn=event.target.closest('[data-history-queue]');
+  if(historyQueueBtn){
+    const item=state.history.find(entry=>entry.videoId===historyQueueBtn.dataset.historyQueue);
+    if(item) queueVideo(item);
+  }
+});
+
+els.suggestionsGrid.addEventListener('click',async event=>{
+  const card=event.target.closest('[data-suggestion-index]');
+  if(!card) return;
+  const suggestions=state.results.filter(item=>item.videoId!==state.current?.videoId).slice(0,state.suggestionLimit);
+  const item=suggestions[Number(card.dataset.suggestionIndex)];
+  if(item) await playVideoIfEmbeddable(item,'results',state.results.findIndex(result=>result.videoId===item.videoId));
 });
 
 loadSetup();
 loadQueue();
+switchPanelTab(state.activeTab);
 renderResults();
 renderQueue();
-if(localStorage.getItem(storage.apiKey)||localStorage.getItem(storage.model)||localStorage.getItem(storage.vibe)){
+if(localStorage.getItem(storage.apiKey)||localStorage.getItem(storage.proxyUrl)||localStorage.getItem(storage.model)||localStorage.getItem(storage.vibe)){
   els.setupScreen.style.display='none';
   els.app.style.display='flex';
 }
 </script>
 </body>
 </html>
+
 
 
 

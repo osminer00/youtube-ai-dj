@@ -1,0 +1,9 @@
+{
+  "name": "youtube-ai-dj",
+  "private": true,
+  "version": "0.2.3",
+  "scripts": {
+    "cf:dev": "wrangler dev",
+    "cf:deploy": "wrangler deploy"
+  }
+}

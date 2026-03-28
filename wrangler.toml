@@ -1,0 +1,7 @@
+name = "youtube-ai-dj-search-proxy"
+main = "cloudflare/search-proxy.js"
+compatibility_date = "2026-03-27"
+
+[vars]
+ALLOWED_ORIGIN = "https://your-pages-domain.pages.dev"
+ALLOWED_ORIGIN_DEV = "http://127.0.0.1:8891"
